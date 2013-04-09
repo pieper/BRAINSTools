@@ -141,13 +141,17 @@ DoBSpline(typename BSplineTransformType::Pointer InitializerBsplineTransform,
   lowerBound.Fill(-m_MaxBSplineDisplacement);
 
   LBFGSBoptimizer->SetBoundSelection(boundSelect);
-  std::cout << "PRE : " << LBFGSBoptimizer->GetUpperBound().size() << " " << upperBound.size() << std::endl;
-  LBFGSBoptimizer->SetUpperBound(upperBound);
-  std::cout << "POST: " << LBFGSBoptimizer->GetUpperBound().size() << " " << upperBound.size() << std::endl;
+  std::cout << "PRE : " << LBFGSBoptimizer->GetUpperBoundx().size() << " " << upperBound.size() << std::endl;
+  LBFGSBoptimizer->SetUpperBoundx(upperBound);
+  std::cout << "YYY   " << (LBFGSBoptimizer->m_UpperBoundx).size() << std::endl;
+  const OptimizerBoundValueType & tempUB=LBFGSBoptimizer->GetUpperBoundx();
+  std::cout << "POST: " << tempUB.size() << " " << upperBound.size() << std::endl;
 
-  std::cout << "PRE : " << LBFGSBoptimizer->GetLowerBound().size() << " " << lowerBound.size() << std::endl;
-  LBFGSBoptimizer->SetLowerBound(lowerBound);
-  std::cout << "POST: " << LBFGSBoptimizer->GetLowerBound().size() << " " << lowerBound.size() << std::endl;
+  std::cout << "PRE : " << LBFGSBoptimizer->GetLowerBoundx().size() << " " << lowerBound.size() << std::endl;
+  LBFGSBoptimizer->SetLowerBoundx(lowerBound);
+  std::cout << "YYY   " << LBFGSBoptimizer->m_LowerBoundx.size() << std::endl;
+  const OptimizerBoundValueType & tempLB=LBFGSBoptimizer->GetLowerBoundx();
+  std::cout << "POST: " << tempLB.size() << " " << lowerBound.size() << std::endl;
 
   LBFGSBoptimizer->SetCostFunctionConvergenceFactor(m_CostFunctionConvergenceFactor);
   LBFGSBoptimizer->SetProjectedGradientTolerance(m_ProjectedGradientTolerance);
