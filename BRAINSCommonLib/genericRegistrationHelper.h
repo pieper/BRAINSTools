@@ -241,9 +241,8 @@ public:
       return;
       }
 
-    typename OptimizerType::ParametersType parms =
-      optimizer->GetCurrentPosition();
-    int  psize = parms.GetNumberOfElements();
+    const typename OptimizerType::ParametersType & parms = optimizer->GetCurrentPosition();
+    const int  psize = parms.GetNumberOfElements();
     bool parmsNonEmpty = false;
     for( int i = 0; i < psize; ++i )
       {
@@ -277,12 +276,11 @@ public:
     //             The following function should only be called when BRAINSFit
     // command line tool is called with
     //             --debugLevel 7 or greater, and it should write the 3D
-    // JointPDF image to the debugOutputDirectory
-    //             location.
+    // JointPDF image to the debugOutputDirectory location.
     std::string debugOutputDirectory("");
     if( optimizer->GetCurrentIteration() < 5 // Only do first 4 of each iteration
-        &&
-        itksys::SystemTools::GetEnv("DEBUG_JOINTHISTOGRAM_DIR", debugOutputDirectory) && debugOutputDirectory != "" )
+        && itksys::SystemTools::GetEnv("DEBUG_JOINTHISTOGRAM_DIR", debugOutputDirectory)
+        && debugOutputDirectory != "" )
       {
       // Special BUG work around for MMI metric
       // that does not work in multi-threaded mode
@@ -316,10 +314,7 @@ public:
       // the only hint you get
       // is in the transform object used by the optimizer, so don't erase it,
       // use it.
-      typename TImage::Pointer transformResult =
-        this->Transform(m_Transform);
-      //      std::cerr << "Moving Volume (after transform): " <<
-      // transformResult << std::endl;
+      typename TImage::Pointer transformResult = this->Transform(m_Transform);
       m_DebugImageDisplaySender.SendImage<TImage>(transformResult, 1);
       typename TImage::Pointer diff = Isub<TImage>(m_FixedImage, transformResult);
 
