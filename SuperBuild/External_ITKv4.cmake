@@ -57,7 +57,6 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
     set(${proj}_DCMTK_ARGS
       -DITK_USE_SYSTEM_DCMTK:BOOL=ON
       -DDCMTK_DIR:PATH=${DCMTK_DIR}
-      -DModule_ITKDCMTK:BOOL=ON
       -DModule_ITKIODCMTK:BOOL=ON
       )
   endif()
@@ -116,6 +115,7 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DITK_USE_REVIEW:BOOL=ON
       #-DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
+      -DBUILD_SHARED_LIBS:BOOL=ON
       -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
@@ -138,8 +138,8 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       ${${proj}_FFTWD_ARGS}
     )
   ### --- End Project specific additions
-  set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git)
-  set(${proj}_GIT_TAG ae8bd15daed65dd033fb169183ef931d8a306462) #2013-04-13 Update for std::copy performance.
+  set(${proj}_REPOSITORY git@github.com:hjmjohnson/ITK.git)
+  set(${proj}_GIT_TAG LBFGSBOptimizerDebug) #2013-04-01 Prepare for InsightSoftwareGuide
 
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
