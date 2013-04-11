@@ -33,7 +33,7 @@ endif()
 # Set dependency list
 set(${proj}_DEPENDENCIES "")
 if(${PROJECT_NAME}_BUILD_DICOM_SUPPORT)
-  list(APPEND ${proj}_DEPENDENCIES DCMTK JPEG TIFF)
+  list(APPEND ${proj}_DEPENDENCIES DCMTK )
 endif()
 
 # Include dependent projects if any
@@ -104,8 +104,6 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       set(git_protocol "git")
   endif()
 
-  find_package(ZLIB REQUIRED)
-
   set(${proj}_CMAKE_OPTIONS
       -DBUILD_TESTING:BOOL=OFF
       -DBUILD_EXAMPLES:BOOL=OFF
@@ -121,17 +119,6 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
       -DITK_USE_SYSTEM_DCMTK:BOOL=${${PROJECT_NAME}_BUILD_DICOM_SUPPORT}
 
-      -DITK_USE_SYSTEM_TIFF:BOOL=ON
-      -DTIFF_LIBRARY:FILEPATH=${TIFF_LIBRARY}
-      -DTIFF_INCLUDE_DIR:PATH=${TIFF_INCLUDE_DIR}
-
-      -DITK_USE_SYSTEM_JPEG:BOOL=ON
-      -DJPEG_LIBRARY:FILEPATH=${JPEG_LIBRARY}
-      -DJPEG_INCLUDE_DIR:PATH=${JPEG_INCLUDE_DIR}
-
-      -DITK_USE_SYSTEM_ZLIB:BOOL=ON
-      -DZLIB_INCLUDE_DIRS:STRING=${ZLIB_INCLUDE_DIRS}
-      -DZLIB_LIBRARIES:STRING=${ZLIB_LIBRARIES}
       ${${proj}_DCMTK_ARGS}
       ${${proj}_WRAP_ARGS}
       ${${proj}_FFTWF_ARGS}
