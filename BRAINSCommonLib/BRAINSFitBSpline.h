@@ -94,10 +94,65 @@ DoBSpline(typename BSplineTransformType::Pointer InitializerBsplineTransform,
   m_OutputBSplineTransform->SetFixedParameters( InitializerBsplineTransform->GetFixedParameters() );
   m_OutputBSplineTransform->SetParametersByValue( InitializerBsplineTransform->GetParameters() );
 
+  // Set up the optimizer and it's bounds.
+  LBFGSBOptimizerTypePointer LBFGSBoptimizer = LBFGSBOptimizerType::New();
+    {
+    /**
+     *
+     * Set the boundary condition for each variable, where
+     * select[i] = 0 if x[i] is unbounded,
+     *           = 1 if x[i] has only a lower bound,
+     *           = 2 if x[i] has both lower and upper bounds, and
+     *           = 3 if x[1] has only an upper bound
+     */
+    // TODO:  For control points outside the fixed image mask, it might be good to
+    // constrian
+    // the parameters to something different than those control points inside the
+    // fixed image mask.
+
+      {
+      OptimizerBoundValueType upperBound( m_OutputBSplineTransform->GetNumberOfParameters() );
+      upperBound.Fill(m_MaxBSplineDisplacement);
+      std::cout << "PRE : " << LBFGSBoptimizer->GetUpperBound().size() << " " << upperBound.size() << std::endl;
+      LBFGSBoptimizer->SetUpperBound(upperBound);
+      //std::cout << "YYY   " << (LBFGSBoptimizer->m_UpperBound).size() << std::endl;
+      const OptimizerBoundValueType & tempUB=LBFGSBoptimizer->GetUpperBound();
+      std::cout << "POST: " << tempUB.size() << " " << upperBound.size() << std::endl;
+      }
+      {
+      OptimizerBoundValueType lowerBound( m_OutputBSplineTransform->GetNumberOfParameters() );
+      lowerBound.Fill(-m_MaxBSplineDisplacement);
+
+      std::cout << "PRE : " << LBFGSBoptimizer->GetLowerBound().size() << " " << lowerBound.size() << std::endl;
+      LBFGSBoptimizer->SetLowerBound(lowerBound);
+      //std::cout << "YYY   " << LBFGSBoptimizer->m_LowerBound.size() << std::endl;
+      const OptimizerBoundValueType & tempLB=LBFGSBoptimizer->GetLowerBound();
+      std::cout << "POST: " << tempLB.size() << " " << lowerBound.size() << std::endl;
+      }
+
+      {
+      OptimizerBoundSelectionType boundSelect( m_OutputBSplineTransform->GetNumberOfParameters() );
+      if( vcl_abs(m_MaxBSplineDisplacement) < 1e-12 )
+        {
+        boundSelect.Fill(0);
+        }
+      else
+        {
+        boundSelect.Fill(2);
+        }
+      LBFGSBoptimizer->SetBoundSelection(boundSelect);
+      }
+
+    LBFGSBoptimizer->SetCostFunctionConvergenceFactor(m_CostFunctionConvergenceFactor);
+    LBFGSBoptimizer->SetProjectedGradientTolerance(m_ProjectedGradientTolerance);
+    LBFGSBoptimizer->SetMaximumNumberOfIterations(m_MaximumNumberOfIterations);
+    LBFGSBoptimizer->SetMaximumNumberOfEvaluations(m_MaximumNumberOfEvaluations);
+    LBFGSBoptimizer->SetMaximumNumberOfCorrections(m_MaximumNumberOfCorrections);
+    }
   /** Set up the Registration */
   RegistrationTypePointer registration = RegistrationType::New();
   registration->SetMetric(CostMetricObject);
-  LBFGSBOptimizerTypePointer LBFGSBoptimizer = LBFGSBOptimizerType::New();
+
   registration->SetOptimizer(LBFGSBoptimizer);
   InterpolatorTypePointer interpolator = InterpolatorType::New();
   registration->SetInterpolator(interpolator);
@@ -112,53 +167,6 @@ DoBSpline(typename BSplineTransformType::Pointer InitializerBsplineTransform,
   registration->SetFixedImageRegion(fixedImageRegion);
 
   registration->SetInitialTransformParameters( m_OutputBSplineTransform->GetParameters() );
-
-  /**
-    *
-    * Set the boundary condition for each variable, where
-    * select[i] = 0 if x[i] is unbounded,
-    *           = 1 if x[i] has only a lower bound,
-    *           = 2 if x[i] has both lower and upper bounds, and
-    *           = 3 if x[1] has only an upper bound
-    */
-  // TODO:  For control points outside the fixed image mask, it might be good to
-  // constrian
-  // the parameters to something different than those control points inside the
-  // fixed image mask.
-
-  OptimizerBoundSelectionType boundSelect( m_OutputBSplineTransform->GetNumberOfParameters() );
-  if( vcl_abs(m_MaxBSplineDisplacement) < 1e-12 )
-    {
-    boundSelect.Fill(0);
-    }
-  else
-    {
-    boundSelect.Fill(2);
-    }
-  OptimizerBoundValueType upperBound( m_OutputBSplineTransform->GetNumberOfParameters() );
-  upperBound.Fill(m_MaxBSplineDisplacement);
-  OptimizerBoundValueType lowerBound( m_OutputBSplineTransform->GetNumberOfParameters() );
-  lowerBound.Fill(-m_MaxBSplineDisplacement);
-
-  LBFGSBoptimizer->SetBoundSelection(boundSelect);
-  std::cout << "PRE : " << LBFGSBoptimizer->GetUpperBoundx().size() << " " << upperBound.size() << std::endl;
-  LBFGSBoptimizer->SetUpperBoundx(upperBound);
-  std::cout << "YYY   " << (LBFGSBoptimizer->m_UpperBoundx).size() << std::endl;
-  const OptimizerBoundValueType & tempUB=LBFGSBoptimizer->GetUpperBoundx();
-  std::cout << "POST: " << tempUB.size() << " " << upperBound.size() << std::endl;
-
-  std::cout << "PRE : " << LBFGSBoptimizer->GetLowerBoundx().size() << " " << lowerBound.size() << std::endl;
-  LBFGSBoptimizer->SetLowerBoundx(lowerBound);
-  std::cout << "YYY   " << LBFGSBoptimizer->m_LowerBoundx.size() << std::endl;
-  const OptimizerBoundValueType & tempLB=LBFGSBoptimizer->GetLowerBoundx();
-  std::cout << "POST: " << tempLB.size() << " " << lowerBound.size() << std::endl;
-
-  LBFGSBoptimizer->SetCostFunctionConvergenceFactor(m_CostFunctionConvergenceFactor);
-  LBFGSBoptimizer->SetProjectedGradientTolerance(m_ProjectedGradientTolerance);
-  LBFGSBoptimizer->SetMaximumNumberOfIterations(m_MaximumNumberOfIterations);
-  LBFGSBoptimizer->SetMaximumNumberOfEvaluations(m_MaximumNumberOfEvaluations);
-  LBFGSBoptimizer->SetMaximumNumberOfCorrections(m_MaximumNumberOfCorrections);
-
   // Create the Command observer and register it with the LBFGSBoptimizer.
   // TODO:  make this output optional.
 

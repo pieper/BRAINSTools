@@ -9,6 +9,7 @@ configure_file(
   )
 
 set(ALL_PROGS_LIST
+  DebugSlicerCLI
   BRAINSFit
   BRAINSFitEZ
   )
