@@ -33,7 +33,7 @@ endif()
 # Set dependency list
 set(${proj}_DEPENDENCIES "")
 if(${PROJECT_NAME}_BUILD_DICOM_SUPPORT)
-  list(APPEND ${proj}_DEPENDENCIES DCMTK )
+  list(APPEND ${proj}_DEPENDENCIES DCMTK JPEG TIFF)
 endif()
 
 # Include dependent projects if any
@@ -57,6 +57,7 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
     set(${proj}_DCMTK_ARGS
       -DITK_USE_SYSTEM_DCMTK:BOOL=ON
       -DDCMTK_DIR:PATH=${DCMTK_DIR}
+      -DModule_ITKDCMTK:BOOL=ON
       -DModule_ITKIODCMTK:BOOL=ON
       )
   endif()
@@ -104,6 +105,8 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       set(git_protocol "git")
   endif()
 
+  find_package(ZLIB REQUIRED)
+
   set(${proj}_CMAKE_OPTIONS
       -DBUILD_TESTING:BOOL=OFF
       -DBUILD_EXAMPLES:BOOL=OFF
@@ -113,20 +116,30 @@ if(NOT ( DEFINED "${extProjName}_DIR" OR ( DEFINED "${USE_SYSTEM_${extProjName}}
       -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DITK_USE_REVIEW:BOOL=ON
       #-DITK_INSTALL_NO_DEVELOPMENT:BOOL=ON
-      -DBUILD_SHARED_LIBS:BOOL=ON
       -DITK_BUILD_ALL_MODULES:BOOL=ON
       -DKWSYS_USE_MD5:BOOL=ON # Required by SlicerExecutionModel
       -DITK_WRAPPING:BOOL=OFF #${BUILD_SHARED_LIBS} ## HACK:  QUICK CHANGE
       -DITK_USE_SYSTEM_DCMTK:BOOL=${${PROJECT_NAME}_BUILD_DICOM_SUPPORT}
 
+      -DITK_USE_SYSTEM_TIFF:BOOL=ON
+      -DTIFF_LIBRARY:FILEPATH=${TIFF_LIBRARY}
+      -DTIFF_INCLUDE_DIR:PATH=${TIFF_INCLUDE_DIR}
+
+      -DITK_USE_SYSTEM_JPEG:BOOL=ON
+      -DJPEG_LIBRARY:FILEPATH=${JPEG_LIBRARY}
+      -DJPEG_INCLUDE_DIR:PATH=${JPEG_INCLUDE_DIR}
+
+      -DITK_USE_SYSTEM_ZLIB:BOOL=ON
+      -DZLIB_INCLUDE_DIRS:STRING=${ZLIB_INCLUDE_DIRS}
+      -DZLIB_LIBRARIES:STRING=${ZLIB_LIBRARIES}
       ${${proj}_DCMTK_ARGS}
       ${${proj}_WRAP_ARGS}
       ${${proj}_FFTWF_ARGS}
       ${${proj}_FFTWD_ARGS}
     )
   ### --- End Project specific additions
-  set(${proj}_REPOSITORY git@github.com:hjmjohnson/ITK.git)
-  set(${proj}_GIT_TAG LBFGSBOptimizerDebug) #2013-04-01 Prepare for InsightSoftwareGuide
+  set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git)
+  set(${proj}_GIT_TAG ae8bd15daed65dd033fb169183ef931d8a306462) #2013-04-13 Update for std::copy performance.
 
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}

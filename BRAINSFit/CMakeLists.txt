@@ -14,6 +14,9 @@ set(ALL_PROGS_LIST
   BRAINSFitEZ
   )
 
+add_executable(DebugSlicerProg DebugSlicerProg.cxx)
+target_link_libraries(DebugSlicerProg ${ITK_LIBRARIES})
+
 set(BRAINSFitLibraries BRAINSCommonLib ${ANTS_LIBS})
 DebugImageViewerLibAdditions(BRAINSFitLibraries)
 foreach(prog ${ALL_PROGS_LIST})
